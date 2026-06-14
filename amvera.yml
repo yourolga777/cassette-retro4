@@ -1,9 +1,8 @@
 meta:
-  environment: node
+  environment: docker
   toolchain:
-    name: npm
+    name: docker
 build:
-  command: npm run build
+  dockerfile: Dockerfile
 run:
-  command: npx tsx migrate.ts && npm run start
-  containerPort: 3000
+  containerPort: "3000"
