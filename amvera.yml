@@ -2,6 +2,8 @@ meta:
   environment: node
   toolchain:
     name: npm
+build:
+  command: npm run build
 run:
   command: npx tsx migrate.ts && npm start
   containerPort: 3000
