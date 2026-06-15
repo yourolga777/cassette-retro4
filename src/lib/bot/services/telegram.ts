@@ -64,6 +64,23 @@ export const api = {
     return data.ok;
   },
 
+  async sendPhoto(
+    chatId: string,
+    photo: string,
+    caption: string,
+    inlineButtons?: InlineButton[][]
+  ): Promise<boolean> {
+    const body: Record<string, unknown> = { chat_id: chatId, photo, caption: safeHtml(caption), parse_mode: "HTML" };
+    if (inlineButtons) body.reply_markup = { inline_keyboard: inlineButtons };
+    const data = await call("sendPhoto", body);
+    return data.ok;
+  },
+
+  async sendChannelPhoto(photo: string, caption: string, inlineButtons?: InlineButton[][]): Promise<boolean> {
+    if (!config.bot.channelId) return false;
+    return this.sendPhoto(config.bot.channelId, photo, caption, inlineButtons);
+  },
+
   async sendChannel(text: string, inlineButtons?: InlineButton[][]): Promise<boolean> {
     if (!config.bot.channelId) return false;
     return this.sendMessage(config.bot.channelId, text, inlineButtons);

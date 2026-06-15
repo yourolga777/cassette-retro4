@@ -17,7 +17,7 @@ import {
   processAddProductStep, getAddProductPrompt,
 } from "@/lib/bot/handlers/catalog";
 import {
-  cmdNewPost, cmdPostsList, cmdPublishPost, cmdEditPost,
+  cmdNewPost, cmdPostsList, cmdViewPost, cmdPublishPost, cmdEditPost,
   processNewPostStep, getNewPostPrompt,
 } from "@/lib/bot/handlers/blog";
 import { cmdPostToChannel, cmdAutoPublishOn, cmdAutoPublishOff } from "@/lib/bot/handlers/channel";
@@ -119,6 +119,7 @@ async function handleMessage(msg: NonNullable<TelegramUpdate["message"]>) {
     case "/posts_list": await cmdPostsList(chatId); break;
     case "/publish_post": await cmdPublishPost(chatId, args); break;
     case "/edit_post": await cmdEditPost(chatId, args); break;
+    case "/view_post": await cmdViewPost(chatId, args); break;
     case "/post_to_tg": await cmdPostToChannel(chatId, args); break;
     case "/auto_publish_on": await cmdAutoPublishOn(chatId); break;
     case "/auto_publish_off": await cmdAutoPublishOff(chatId); break;

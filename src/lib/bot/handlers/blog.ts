@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { posts, botConfig } from "@/lib/schema";
+import { posts } from "@/lib/schema";
 import { eq, desc } from "drizzle-orm";
 import { api } from "../services/telegram";
 import { getSession, setSession, clearSession } from "../session";
@@ -7,19 +7,44 @@ import { slugify } from "@/lib/utils";
 
 export async function cmdNewPost(chatId: string): Promise<void> {
   setSession(chatId, { step: "newpost_title", data: {} });
-  await api.sendMessage(chatId, "📝 Заголовок нового поста:\n\n(отправьте /cancel чтобы отменить)");
+  await api.sendMessage(chatId, "📝 <b>Новый пост</b>\n\nОтправьте заголовок поста:\n(/cancel чтобы отменить)");
 }
 
 export async function cmdPostsList(chatId: string): Promise<void> {
   const recent = await db
-    .select({ id: posts.id, title: posts.title, published: posts.published, createdAt: posts.createdAt })
+    .select({ id: posts.id, title: posts.title, published: posts.published, content: posts.content, createdAt: posts.createdAt })
     .from(posts)
     .orderBy(desc(posts.createdAt))
     .limit(5);
 
   if (!recent.length) { await api.sendMessage(chatId, "📭 В блоге пока нет постов."); return; }
-  const lines = recent.map((p) => `ID: ${p.id} | ${p.published ? "✅" : "📝 Черновик"} | ${p.title}`);
+  const lines = recent.map((p) => {
+    const preview = (p.content || "").slice(0, 80).replace(/\n/g, " ");
+    return `ID: ${p.id} | ${p.published ? "✅" : "📝 Черновик"} | ${p.title}\n   ${preview}${preview.length < 80 ? "" : "…"}`;
+  });
   await api.sendMessage(chatId, `<b>📝 Последние посты</b>\n\n${lines.join("\n")}`);
+}
+
+export async function cmdViewPost(chatId: string, args: string): Promise<void> {
+  const id = parseInt(args);
+  if (!id) { await api.sendMessage(chatId, "❓ /view_post N"); return; }
+  const post = await db.select().from(posts).where(eq(posts.id, id)).limit(1);
+  if (!post.length) { await api.sendMessage(chatId, `❌ Пост ID ${id} не найден.`); return; }
+  const p = post[0];
+  const info = [
+    `<b>📝 Пост #${p.id}</b>`,
+    ``,
+    `<b>Заголовок:</b> ${p.title}`,
+    `<b>Статус:</b> ${p.published ? "✅ Опубликован" : "📝 Черновик"}`,
+    p.coverUrl ? `<b>Обложка:</b> ${p.coverUrl}` : "",
+    p.tags?.length ? `<b>Теги:</b> ${p.tags.join(", ")}` : "",
+    ``,
+    `<b>Содержание:</b>`,
+    (p.content || "").slice(0, 300),
+    ``,
+    p.createdAt ? `<b>Создан:</b> ${p.createdAt.toLocaleDateString("ru-RU")}` : "",
+  ].filter(Boolean).join("\n");
+  await api.sendMessage(chatId, info);
 }
 
 export async function cmdPublishPost(chatId: string, args: string): Promise<void> {
@@ -41,7 +66,13 @@ export async function cmdPublishPost(chatId: string, args: string): Promise<void
     ``,
     `🔗 <a href="${postUrl}">Читать полностью на сайте</a>`,
   ].join("\n");
-  await api.sendChannel(preview, [[{ text: "📀 Перейти к товарам", url: `${siteUrl}/shop` }]]);
+  const buttons = [[{ text: "📀 Перейти к товарам", url: `${siteUrl}/shop` }]];
+
+  if (post[0].coverUrl) {
+    await api.sendChannelPhoto(post[0].coverUrl, preview, buttons);
+  } else {
+    await api.sendChannel(preview, buttons);
+  }
 }
 
 export async function cmdEditPost(chatId: string, args: string): Promise<void> {
@@ -64,6 +95,10 @@ export async function processNewPostStep(
     case "newpost_content": data.content = text; return "newpost_tags";
     case "newpost_tags": {
       data.tags = text.split(",").map((t) => t.trim()).filter(Boolean);
+      return "newpost_image";
+    }
+    case "newpost_image": {
+      data.coverUrl = text === "-" ? "" : text;
       await showPreview(chatId, data);
       return "newpost_confirm";
     }
@@ -90,6 +125,7 @@ async function showPreview(chatId: string, data: Record<string, unknown>): Promi
     (data.content as string).slice(0, 500),
     ``,
     `<b>Теги:</b> ${(data.tags as string[]).join(", ")}`,
+    data.coverUrl ? `\n<b>Обложка:</b> ${data.coverUrl}` : "",
     ``,
     `Сохранить как черновик?`,
   ].join("\n");
@@ -109,10 +145,11 @@ async function finishNewPost(chatId: string, data: Record<string, unknown>): Pro
       type: "original",
       content: data.content as string,
       tags: data.tags as string[],
+      coverUrl: (data.coverUrl as string) || null,
       published: false,
     }).returning();
     clearSession(chatId);
-    await api.sendMessage(chatId, `✅ <b>Пост сохранён как черновик!</b>\n\nID: ${post.id}\n«${title}»\n\nОпубликовать: /publish_post ${post.id}`);
+    await api.sendMessage(chatId, `✅ <b>Пост сохранён как черновик!</b>\n\nID: ${post.id}\n«${title}»\n\nПросмотреть: /view_post ${post.id}\nОпубликовать: /publish_post ${post.id}`);
   } catch (e) {
     await api.sendMessage(chatId, `❌ Ошибка: ${e instanceof Error ? e.message : "неизвестная"}`);
     clearSession(chatId);
@@ -124,5 +161,6 @@ export function getNewPostPrompt(step: string): string {
     newpost_title: "📝 Заголовок поста:",
     newpost_content: "📝 Текст поста:",
     newpost_tags: "🏷 Теги через запятую:",
+    newpost_image: "🖼 URL обложки (или «-» чтобы пропустить):",
   } as Record<string, string>)[step] || "Продолжите:";
 }
