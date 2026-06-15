@@ -1,4 +1,5 @@
 import { config } from "../config";
+import { escapeHtml } from "../utils/html";
 
 const BASE = `https://api.telegram.org/bot${config.bot.token}`;
 
@@ -20,13 +21,25 @@ async function call(
 
 type InlineButton = { text: string; callback_data?: string; url?: string };
 
+function safeHtml(text: string): string {
+  const escaped = escapeHtml(text);
+  return escaped
+    .replace(/&lt;b&gt;/g, "<b>").replace(/&lt;\/b&gt;/g, "</b>")
+    .replace(/&lt;i&gt;/g, "<i>").replace(/&lt;\/i&gt;/g, "</i>")
+    .replace(/&lt;code&gt;/g, "<code>").replace(/&lt;\/code&gt;/g, "</code>")
+    .replace(/&lt;pre&gt;/g, "<pre>").replace(/&lt;\/pre&gt;/g, "</pre>")
+    .replace(/&lt;br\s*\/&gt;/g, "<br/>")
+    .replace(/&lt;a\s+href="([^"]*)"\s*&gt;/g, '<a href="$1">')
+    .replace(/&lt;\/a&gt;/g, "</a>");
+}
+
 export const api = {
   async sendMessage(
     chatId: string,
     text: string,
     inlineButtons?: InlineButton[][]
   ): Promise<boolean> {
-    const body: Record<string, unknown> = { chat_id: chatId, text, parse_mode: "HTML" };
+    const body: Record<string, unknown> = { chat_id: chatId, text: safeHtml(text), parse_mode: "HTML" };
     if (inlineButtons) body.reply_markup = { inline_keyboard: inlineButtons };
     const data = await call("sendMessage", body);
     return data.ok;
@@ -38,7 +51,7 @@ export const api = {
     text: string,
     inlineButtons?: InlineButton[][]
   ): Promise<boolean> {
-    const body: Record<string, unknown> = { chat_id: chatId, message_id: messageId, text, parse_mode: "HTML" };
+    const body: Record<string, unknown> = { chat_id: chatId, message_id: messageId, text: safeHtml(text), parse_mode: "HTML" };
     if (inlineButtons) body.reply_markup = { inline_keyboard: inlineButtons };
     const data = await call("editMessageText", body);
     return data.ok;

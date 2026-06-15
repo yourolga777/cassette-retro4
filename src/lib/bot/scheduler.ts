@@ -36,7 +36,11 @@ export function startDailyReport(): void {
       ].join("\n");
 
       for (const adminId of config.bot.adminIds) {
-        await api.sendMessage(adminId, msg);
+        try {
+          await api.sendMessage(adminId, msg);
+        } catch (e) {
+          logger.error({ err: e, adminId }, "Daily report send failed");
+        }
       }
     } catch (e) {
       logger.error({ err: e }, "Daily report error");

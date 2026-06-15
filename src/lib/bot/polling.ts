@@ -25,7 +25,11 @@ export async function startPolling(): Promise<void> {
         if (updateId !== undefined) {
           offset = updateId + 1;
         }
-        handleUpdate(raw);
+        try {
+          await handleUpdate(raw);
+        } catch (e) {
+          logger.error({ err: e, updateId }, "Update processing error");
+        }
       }
     } catch (e) {
       logger.error({ err: e }, "Polling error");

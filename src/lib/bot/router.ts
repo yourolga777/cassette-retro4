@@ -53,15 +53,19 @@ function getUpdateType(update: TelegramUpdate): string {
   return "unknown";
 }
 
-export function handleUpdate(update: TelegramUpdate): void {
-  logger.info({ updateType: getUpdateType(update) }, "Update");
+export async function handleUpdate(update: TelegramUpdate): Promise<void> {
+  try {
+    logger.info({ updateType: getUpdateType(update) }, "Update");
 
-  if (update.message?.text) {
-    handleMessage(update.message);
-  } else if (update.message?.photo) {
-    handlePhoto(update.message);
-  } else if (update.callback_query) {
-    handleCallback(update.callback_query);
+    if (update.message?.text) {
+      await handleMessage(update.message);
+    } else if (update.message?.photo) {
+      await handlePhoto(update.message);
+    } else if (update.callback_query) {
+      await handleCallback(update.callback_query);
+    }
+  } catch (e) {
+    logger.error({ err: e, updateId: update.update_id }, "Update handler error");
   }
 }
 
