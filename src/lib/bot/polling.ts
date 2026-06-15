@@ -21,10 +21,14 @@ export async function startPolling(): Promise<void> {
     logger.warn({ err: e }, "Failed to delete webhook (non-critical)");
   }
 
-  const saved = await db.select().from(botConfig).where(eq(botConfig.key, "last_update_id")).limit(1);
-  if (saved.length) {
-    offset = parseInt(saved[0].value, 10);
-    logger.info({ offset }, "Resumed polling from saved offset");
+  try {
+    const saved = await db.select().from(botConfig).where(eq(botConfig.key, "last_update_id")).limit(1);
+    if (saved.length) {
+      offset = parseInt(saved[0].value, 10);
+      logger.info({ offset }, "Resumed polling from saved offset");
+    }
+  } catch (e) {
+    logger.warn({ err: e }, "Failed to read polling offset, starting from 0");
   }
 
   const poll = async () => {
@@ -79,6 +83,6 @@ function checkKeepalive(): void {
   if (idle > 5 * 60 * 1000) {
     logger.warn({ idleSeconds: idle / 1000 }, "Polling idle too long, restarting");
     stopPolling();
-    startPolling();
+    startPolling().catch((e) => logger.error({ err: e }, "Keepalive restart failed"));
   }
 }
