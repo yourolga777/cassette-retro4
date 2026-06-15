@@ -15,12 +15,12 @@ export async function cmdBroadcast(chatId: string): Promise<void> {
     return;
   }
 
-  setSession(chatId, { step: "broadcast_text", data: { count: subs.length } });
+  await setSession(chatId, { step: "broadcast_text", data: { count: subs.length } });
   await api.sendMessage(chatId, `📢 Подписчиков: ${subs.length}\n\nВведите текст рассылки (или /cancel):`);
 }
 
 export async function processBroadcastText(chatId: string, text: string, data: Record<string, unknown>): Promise<void> {
-  clearSession(chatId);
+  await clearSession(chatId);
   const subs = await db
     .select({ telegramId: users.telegramId })
     .from(users)
@@ -46,3 +46,4 @@ export async function processBroadcastText(chatId: string, text: string, data: R
 function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
+

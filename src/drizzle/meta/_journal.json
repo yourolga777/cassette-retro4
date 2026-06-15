@@ -36,6 +36,13 @@
       "when": 1781456580751,
       "tag": "0004_tough_mandrill",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1781544252378,
+      "tag": "0005_late_frank_castle",
+      "breakpoints": true
     }
   ]
 }

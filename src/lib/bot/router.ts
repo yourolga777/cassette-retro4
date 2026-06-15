@@ -86,9 +86,9 @@ async function handleMessage(msg: NonNullable<TelegramUpdate["message"]>) {
 
   logger.info({ chatId, text }, "Command");
 
-  const session = getSession(chatId);
+  const session = await getSession(chatId);
   if (session && text === "/cancel") {
-    clearSession(chatId);
+    await clearSession(chatId);
     await api.sendMessage(chatId, "❌ Действие отменено.");
     return;
   }
@@ -168,7 +168,7 @@ async function handleCallback(cb: NonNullable<TelegramUpdate["callback_query"]>)
       await api.answerCallbackQuery(cbId);
       break;
     case "confirm_post": {
-      const s = getSession(chatId);
+      const s = await getSession(chatId);
       if (s && s.step === "newpost_confirm") {
         await processNewPostStep(chatId, "да", s.step, s.data);
       }
@@ -176,7 +176,7 @@ async function handleCallback(cb: NonNullable<TelegramUpdate["callback_query"]>)
       break;
     }
     case "cancel_post": {
-      clearSession(chatId);
+      await clearSession(chatId);
       await api.editMessageText(chatId, msgId, "❌ Пост отменён.");
       await api.answerCallbackQuery(cbId);
       break;
@@ -217,7 +217,7 @@ async function handleSessionStep(chatId: string, text: string, session: { step: 
     const next = await processAddProductStep(chatId, text, step, data);
     if (next === null) return;
     if (next !== step) {
-      setSession(chatId, { step: next, data });
+      await setSession(chatId, { step: next, data });
       await api.sendMessage(chatId, getAddProductPrompt(next));
     }
     return;
@@ -226,7 +226,7 @@ async function handleSessionStep(chatId: string, text: string, session: { step: 
     const next = await processNewPostStep(chatId, text, step, data);
     if (next === null) return;
     if (next !== step) {
-      setSession(chatId, { step: next, data });
+      await setSession(chatId, { step: next, data });
       if (next !== "newpost_confirm") {
         await api.sendMessage(chatId, getNewPostPrompt(next));
       }
@@ -242,5 +242,7 @@ async function handleSessionStep(chatId: string, text: string, session: { step: 
     return;
   }
 
-  clearSession(chatId);
+  await clearSession(chatId);
 }
+
+

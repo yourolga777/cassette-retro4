@@ -6,7 +6,7 @@ import { getSession, setSession, clearSession } from "../session";
 import { slugify } from "@/lib/utils";
 
 export async function cmdNewPost(chatId: string): Promise<void> {
-  setSession(chatId, { step: "newpost_title", data: {} });
+  await setSession(chatId, { step: "newpost_title", data: {} });
   await api.sendMessage(chatId, "📝 <b>Новый пост</b>\n\nОтправьте заголовок поста:\n(/cancel чтобы отменить)");
 }
 
@@ -106,7 +106,7 @@ export async function processNewPostStep(
       if (text.toLowerCase() === "да" || text === "yes") {
         await finishNewPost(chatId, data);
       } else {
-        clearSession(chatId);
+        await clearSession(chatId);
         await api.sendMessage(chatId, "❌ Пост отменён.");
       }
       return null;
@@ -129,7 +129,7 @@ async function showPreview(chatId: string, data: Record<string, unknown>): Promi
     ``,
     `Сохранить как черновик?`,
   ].join("\n");
-  setSession(chatId, { step: "newpost_confirm", data });
+  await setSession(chatId, { step: "newpost_confirm", data });
   await api.sendMessage(chatId, preview, [
     [{ text: "✅ Да, сохранить", callback_data: "confirm_post" }],
     [{ text: "❌ Отмена", callback_data: "cancel_post" }],
@@ -148,11 +148,11 @@ async function finishNewPost(chatId: string, data: Record<string, unknown>): Pro
       coverUrl: (data.coverUrl as string) || null,
       published: false,
     }).returning();
-    clearSession(chatId);
+    await clearSession(chatId);
     await api.sendMessage(chatId, `✅ <b>Пост сохранён как черновик!</b>\n\nID: ${post.id}\n«${title}»\n\nПросмотреть: /view_post ${post.id}\nОпубликовать: /publish_post ${post.id}`);
   } catch (e) {
     await api.sendMessage(chatId, `❌ Ошибка: ${e instanceof Error ? e.message : "неизвестная"}`);
-    clearSession(chatId);
+    await clearSession(chatId);
   }
 }
 
@@ -164,3 +164,4 @@ export function getNewPostPrompt(step: string): string {
     newpost_image: "🖼 URL обложки (или «-» чтобы пропустить):",
   } as Record<string, string>)[step] || "Продолжите:";
 }
+

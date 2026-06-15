@@ -129,3 +129,11 @@ export const botConfig = pgTable("bot_config", {
   key: text("key").primaryKey(),
   value: text("value").notNull(),
 });
+
+export const botSessions = pgTable("bot_sessions", {
+  chatId: text("chat_id").primaryKey(),
+  step: text("step"),
+  data: jsonb("data").default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});

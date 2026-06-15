@@ -82,7 +82,7 @@ export async function cmdCancelOrder(chatId: string, ref: string): Promise<void>
     await api.sendMessage(chatId, `❌ Заказ #${ref} не найден.`);
     return;
   }
-  setSession(chatId, { step: "cancel_reason", data: { orderId: order.orderId } });
+  await setSession(chatId, { step: "cancel_reason", data: { orderId: order.orderId } });
   await api.sendMessage(chatId, `✏️ Напишите причину отмены заказа #${order.orderId}:`);
 }
 
@@ -100,21 +100,21 @@ export async function handleConfirmOrder(chatId: string, ref: string): Promise<v
 }
 
 export async function handleRejectOrder(chatId: string, ref: string): Promise<void> {
-  setSession(chatId, { step: "reject_reason", data: { orderId: ref } });
+  await setSession(chatId, { step: "reject_reason", data: { orderId: ref } });
   await api.sendMessage(chatId, `✏️ Напишите причину отклонения заказа #${ref}:`);
 }
 
 export async function processCancelReason(chatId: string, reason: string, data: Record<string, unknown>): Promise<void> {
   const orderId = data.orderId as string;
   await db.update(orders).set({ status: "cancelled", updatedAt: sql`now()` }).where(eq(orders.orderId, orderId));
-  clearSession(chatId);
+  await clearSession(chatId);
   await api.sendMessage(chatId, `✅ Заказ #${orderId} отменён.\nПричина: ${reason}`);
 }
 
 export async function processRejectReason(chatId: string, reason: string, data: Record<string, unknown>): Promise<void> {
   const orderId = data.orderId as string;
   await db.update(orders).set({ status: "cancelled", updatedAt: sql`now()` }).where(eq(orders.orderId, orderId));
-  clearSession(chatId);
+  await clearSession(chatId);
   await api.sendMessage(chatId, `✅ Заказ #${orderId} отклонён.\nПричина: ${reason}`);
 }
 
@@ -196,3 +196,4 @@ function statusLabel(s: string): string {
 function fmtPrice(k: number): string {
   return (k / 100).toLocaleString("ru-RU", { style: "currency", currency: "RUB" });
 }
+

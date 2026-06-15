@@ -35,7 +35,7 @@ export async function cmdCatalog(chatId: string, page = 1): Promise<void> {
 }
 
 export async function cmdAddProductStart(chatId: string): Promise<void> {
-  setSession(chatId, { step: "addproduct_name", data: {} });
+  await setSession(chatId, { step: "addproduct_name", data: {} });
   await api.sendMessage(chatId, "📀 Название товара:\n\n(отправьте /cancel чтобы отменить)");
 }
 
@@ -140,11 +140,11 @@ async function finishAddProduct(chatId: string, data: Record<string, unknown>): 
       imageUrl: data.imageUrl as string,
       stockCount: data.stockCount as number,
     }).returning();
-    clearSession(chatId);
+    await clearSession(chatId);
     await api.sendMessage(chatId, `✅ <b>Товар добавлен!</b>\n\nID: ${product.id}\n${product.name}\n${fmtPrice(product.price)}\n${product.category}\nСклад: ${product.stockCount} шт.`);
   } catch (e) {
     await api.sendMessage(chatId, `❌ Ошибка: ${e instanceof Error ? e.message : "неизвестная"}`);
-    clearSession(chatId);
+    await clearSession(chatId);
   }
 }
 
@@ -166,3 +166,4 @@ import { slugify } from "@/lib/utils";
 function fmtPrice(k: number): string {
   return (k / 100).toLocaleString("ru-RU", { style: "currency", currency: "RUB" });
 }
+
