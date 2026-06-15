@@ -11,18 +11,33 @@ async function tryFetch(label: string, url: string, init?: RequestInit): Promise
 }
 
 export async function GET() {
+  const token = config.bot.token;
+  const adminId = config.bot.adminIds[0] || "1100115774";
+
   const results = await Promise.all([
     tryFetch("Google", "https://google.com"),
-    tryFetch("Telegram API (getMe)", `https://api.telegram.org/bot${config.bot.token}/getMe`),
-    tryFetch("Telegram API (getWebhookInfo)", `https://api.telegram.org/bot${config.bot.token}/getWebhookInfo`),
+    tryFetch("getMe (GET)", `https://api.telegram.org/bot${token}/getMe`),
+    tryFetch("getWebhookInfo (GET)", `https://api.telegram.org/bot${token}/getWebhookInfo`),
+    tryFetch("getWebhookInfo (POST)", `https://api.telegram.org/bot${token}/getWebhookInfo`, { method: "POST" }),
+    tryFetch("sendMessage to admin",
+      `https://api.telegram.org/bot${token}/sendMessage`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: parseInt(adminId),
+          text: "🧪 Тест sendMessage — если видите это, всё работает!",
+          parse_mode: "HTML",
+        }),
+      }
+    ),
   ]);
 
   return NextResponse.json({
     env: {
-      hasToken: !!config.bot.token,
-      tokenPrefix: config.bot.token ? config.bot.token.slice(0, 20) + "..." : "MISSING",
+      hasToken: !!token,
+      tokenPrefix: token ? token.slice(0, 20) + "..." : "MISSING",
       adminIds: config.bot.adminIds,
-      channelId: config.bot.channelId,
     },
     tests: results,
   });
