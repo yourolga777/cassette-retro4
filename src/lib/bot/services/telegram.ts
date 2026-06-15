@@ -81,4 +81,16 @@ export const api = {
     }
     return null;
   },
+
+  async getUpdates(
+    offset: number,
+    limit = 100,
+    timeout = 30
+  ): Promise<Array<Record<string, unknown>>> {
+    const data = await call("getUpdates", { offset, limit, timeout });
+    if (data.ok && Array.isArray(data.result)) {
+      return data.result as Array<Record<string, unknown>>;
+    }
+    return [];
+  },
 };
