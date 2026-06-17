@@ -6,18 +6,13 @@ export function CrtOverlay() {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(false), 1200);
+    const timer = setTimeout(() => setVisible(false), 400);
     return () => clearTimeout(timer);
   }, []);
 
-  if (!visible) return <div className="crt-overlay" aria-hidden />;
+  if (!visible) return null;
 
   return (
-    <div className="crt-overlay" aria-hidden>
-      <div
-        className="absolute inset-0 bg-white"
-        style={{ animation: "crt-on 0.8s ease-out forwards" }}
-      />
-    </div>
+    <div className="fixed inset-0 z-[9997] pointer-events-none animate-fade-in" />
   );
 }
