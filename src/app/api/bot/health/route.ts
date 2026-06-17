@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getPollingStatus, startPolling } from "@/lib/bot/polling";
 import { getSessionCount } from "@/lib/bot/session";
 import { startDailyReport } from "@/lib/bot/scheduler";
-import { setupErrorHandling } from "@/lib/bot/utils/errorReporter";
 
 const startedAt = Date.now();
 let initialized = false;
@@ -16,7 +15,6 @@ export async function GET(req: NextRequest) {
     initialized = true;
     initError = null;
     try {
-      setupErrorHandling();
       await startPolling();
       startDailyReport();
       initDone = true;
