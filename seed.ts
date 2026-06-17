@@ -16,8 +16,7 @@ async function seed() {
       typeLabel: "Type II (High Bias)",
       description:
         "Легендарные кассеты TDK SA (Super Avilyn) — золотой стандарт Type II.\n\nИдеальны для записи музыки: широкий динамический диапазон, низкий уровень шума, чистое и детальное звучание. 90 минут записи.",
-      imageUrl:
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/TDK_SA90.jpg/800px-TDK_SA90.jpg",
+      imageUrl: "/images/products/tdk-sa90.jpg",
       stockCount: 50,
     },
     {
@@ -29,8 +28,7 @@ async function seed() {
       typeLabel: "Type I (Normal Bias)",
       description:
         "Качественные ферромагнитные кассеты BASF Ferro Extra. Отличный выбор для повседневной записи. Надёжный механизм, точное литьё корпуса.",
-      imageUrl:
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/BASF_Ferro_Extra_I_C90.jpg/800px-BASF_Ferro_Extra_I_C90.jpg",
+      imageUrl: "/images/products/basf-ferro.jpg",
       stockCount: 100,
     },
     {
@@ -42,8 +40,7 @@ async function seed() {
       typeLabel: null,
       description:
         "Портативный кассетный плеер Sony Walkman WM-EX194. Сверхплоский корпус, автореверс, система Mega Bass для глубоких низких частот.\n\nРаботает от 1 батарейки AA до 40 часов.",
-      imageUrl:
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Sony_Walkman_WM-EX194.jpg/800px-Sony_Walkman_WM-EX194.jpg",
+      imageUrl: "/images/products/sony-walkman.jpg",
       stockCount: 5,
     },
     {
@@ -55,8 +52,7 @@ async function seed() {
       typeLabel: "Type I",
       description:
         "Эксклюзивный микстейп «Lo-Fi Dreams» — коллекция атмосферных лоу-фай треков, записанных вручную на плёнку.\n\nТреки:\n1. Midnight Signal — 4:20\n2. Fade to Grey — 3:45\n3. Velvet Dusk — 5:10\n4. Static Echo — 3:30\n5. Broken Radio — 4:00\n\nКаждая кассета — уникальна. Ручная упаковка.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c6b?w=800",
+      imageUrl: "/images/products/lofi-mixtape.jpg",
       stockCount: 15,
     },
     {
@@ -68,8 +64,7 @@ async function seed() {
       typeLabel: null,
       description:
         "Винтажная кассетная дека Denon DR-M44HX. Трёхголовочная система, кварцевый таймер, система Dolby B/C/HX Pro.\n\nСостояние: отличное, произведена замена ремней и калибровка.",
-      imageUrl:
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Denon_DR-M44HX.jpg/800px-Denon_DR-M44HX.jpg",
+      imageUrl: "/images/products/denon-deck.jpg",
       stockCount: 1,
     },
   ];

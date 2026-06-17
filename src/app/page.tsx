@@ -19,7 +19,7 @@ async function getLatestProducts() {
       .select()
       .from(products)
       .orderBy(desc(products.createdAt))
-      .limit(4);
+      .limit(3);
   } catch {
     return [];
   }
@@ -83,25 +83,10 @@ export default async function HomePage() {
                 <br />
                 <span className="text-brass">которые звучат</span>
               </h1>
-              <p className="text-muted text-sm sm:text-base max-w-lg mx-auto lg:mx-0 mb-8 leading-relaxed">
+              <p className="text-muted text-sm sm:text-base max-w-lg mx-auto lg:mx-0 mb-4 leading-relaxed">
                 Оригинальные аудиокассеты TDK, BASF, Sony, микстейпы и кассетное оборудование.
                 Для коллекционеров, музыкантов и ценителей тёплого звука.
               </p>
-              <div className="flex items-center gap-4 justify-center lg:justify-start">
-                <Link
-                  href="/shop"
-                  className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 text-sm font-medium hover:bg-primary-light transition-colors"
-                >
-                  В магазин
-                  <ArrowRight size={16} />
-                </Link>
-                <Link
-                  href="/blog"
-                  className="inline-flex items-center gap-2 border border-border text-primary px-6 py-3 text-sm font-medium hover:bg-border-light transition-colors"
-                >
-                  Читать блог
-                </Link>
-              </div>
             </div>
             <div className="flex-shrink-0">
               <div className="relative w-[280px] h-[280px] sm:w-[340px] sm:h-[340px] lg:w-[400px] lg:h-[400px]">
@@ -118,24 +103,16 @@ export default async function HomePage() {
       {/* ===== TRUST STATS ===== */}
       <TrustStats />
 
-      {/* ===== NEW ARRIVALS ===== */}
+      {/* ===== НОВОЕ ПОСТУПЛЕНИЕ ===== */}
       {latestProducts.length > 0 && (
         <section className="py-16 md:py-20">
           <div className="section-container">
-            <div className="flex items-end justify-between mb-10">
-              <SectionTitle
-                label="Новинки"
-                title="Поступления"
-                subtitle="Свежие поступления кассет и оборудования"
-              />
-              <Link
-                href="/shop"
-                className="hidden sm:inline-flex items-center gap-1 text-sm text-muted hover:text-primary transition-colors"
-              >
-                Все товары <ArrowRight size={14} />
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+            <SectionTitle
+              title="Новое поступление"
+              subtitle="Свежие поступления кассет и оборудования"
+              align="center"
+            />
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
               {latestProducts.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -149,12 +126,13 @@ export default async function HomePage() {
                 />
               ))}
             </div>
-            <div className="mt-8 text-center sm:hidden">
+            <div className="mt-8 text-center">
               <Link
                 href="/shop"
-                className="inline-flex items-center gap-2 border border-border text-primary px-5 py-2.5 text-sm font-medium hover:bg-border-light transition-colors"
+                className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 text-sm font-medium hover:bg-primary-light transition-colors"
               >
-                Все товары <ArrowRight size={14} />
+                В магазин
+                <ArrowRight size={16} />
               </Link>
             </div>
           </div>
@@ -190,23 +168,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ===== BLOG ===== */}
+      {/* ===== ИНТЕРЕСНОЕ ===== */}
       {latestPosts.length > 0 && (
         <section className="py-16 md:py-20 bg-white border-y border-border">
           <div className="section-container">
-            <div className="flex items-end justify-between mb-10">
-              <SectionTitle
-                label="Блог"
-                title="Читайте о кассетах"
-                subtitle="Статьи об аудиокассетах, плеерах и культуре тёплого звука"
-              />
-              <Link
-                href="/blog"
-                className="hidden sm:inline-flex items-center gap-1 text-sm text-muted hover:text-primary transition-colors"
-              >
-                Все записи <ArrowRight size={14} />
-              </Link>
-            </div>
+            <SectionTitle
+              title="Интересное"
+              subtitle="Статьи об аудиокассетах, плеерах и культуре тёплого звука"
+              align="center"
+            />
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {latestPosts.map((post) => (
                 <Link
@@ -248,12 +218,13 @@ export default async function HomePage() {
                 </Link>
               ))}
             </div>
-            <div className="mt-8 text-center sm:hidden">
+            <div className="mt-8 text-center">
               <Link
                 href="/blog"
                 className="inline-flex items-center gap-2 border border-border text-primary px-5 py-2.5 text-sm font-medium hover:bg-border-light transition-colors"
               >
-                Все записи <ArrowRight size={14} />
+                Читать еще
+                <ArrowRight size={14} />
               </Link>
             </div>
           </div>
